@@ -35,7 +35,7 @@ const confirmar = () => {
                 </button>
                 
                 <button class="btn-confirm" @click="confirmar">
-                    {{ ui.modal.tipo === 'confirmacao' ? '✅ Confirmar' : '👌 Entendi' }}
+                    {{ ui.modal.tipo === 'confirmacao' ? 'Confirmar' : 'Entendi' }}
                 </button>
             </div>
         </div>

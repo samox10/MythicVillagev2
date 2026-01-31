@@ -289,7 +289,7 @@ const getDiferencaPrefeito = (func) => {
 .btn-upgrade:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7; }
 .lista-minerios { display: flex; flex-direction: column; gap: 10px; }
 .card-minerio {
-    background: white; border: 1px solid #bdc3c7; border-radius: 8px;
+    background: rgba(255, 255, 255, 0.5); border: 1px solid #bdc3c7; border-radius: 8px;
     padding: 10px; display: flex; align-items: center; justify-content: space-between;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }

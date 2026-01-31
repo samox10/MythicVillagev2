@@ -1,7 +1,8 @@
 <script setup>
   import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { jogo, acoes, ui, populacaoTotal, custoContratacao, bonusSorteTotal, limites, obterBuffRaca } from '../jogo.js';
-  import { ORDEM_TIERS, DESBLOQUEIO_POR_NIVEL, obterProbabilidades, CLASSES_RPG } from '../funcionarios.js';
+  import { ORDEM_TIERS, DESBLOQUEIO_POR_NIVEL, obterProbabilidades, CLASSES_RPG, corTier } from '../funcionarios.js';
+  import { nomeProfissao } from '../dados.js';
   
 
     const mostrarBotaoTopo = ref(false);
@@ -57,7 +58,7 @@ const resultadoFusao = ref(null);
   // --- CONTROLE DE VISIBILIDADE DAS SEÇÕES ---
   const secoesAbertas = ref({
       elite: true,       // Começa aberto
-      aventureiros: true, // Começa aberto
+      herois: true, // Começa aberto
       comuns: true       // Começa aberto
   });
 
@@ -106,11 +107,11 @@ const resultadoFusao = ref(null);
   const opcoesProfissoes = [
       { v: 'minerador', t: 'Minerador' },
       { v: 'lenhador',  t: 'Lenhador' },
-      { v: 'cacador',   t: 'Caçador' },
+      { v: 'esfolador',   t: 'Esfolador' },
       { v: 'academico', t: 'Acadêmico' },
       { v: 'batedor',   t: 'Batedor' },
       { v: 'saqueador', t: 'Saqueador' },
-      { v: 'aventureiro', t: 'Aventureiro' }
+      { v: 'heroi', t: 'Herói' }
   ];
   // Lista manual de raças
   const opcoesRacas = [
@@ -196,33 +197,12 @@ const resultadoFusao = ref(null);
       if (!raca) return 'Desconhecida';
       return raca.charAt(0).toUpperCase() + raca.slice(1);
   };
-
-  const nomeProfissao = (func) => {
-      const mapa = {
-            // Mantidos (Sem alteração solicitada)
-            'minerador': { m: 'Minerador', f: 'Mineradora' },
-            'lenhador':  { m: 'Lenhador',  f: 'Lenhadora' },
-            'cacador':   { m: 'Caçador',   f: 'Caçadora' },
-            'ferreiro':  { m: 'Ferreiro',  f: 'Ferreira' },
-            'saqueador': { m: 'Saqueador',  f: 'Saqueadora' },
-            'batedor':   { m: 'Batedor',    f: 'Batedora' },
-            'aventureiro': { m: 'Aventureiro', f: 'Aventureira' },
-            'academico':     { m: 'Acadêmico',   f: 'Acadêmica' },
-            'administrador': { m: 'Administrador', f: 'Administradora' },
-            'curandeiro':    { m: 'Curandeiro',  f: 'Curandeira' },
-            'lorde':         { m: 'Lorde',       f: 'Lady' },
-            'tesoureiro':    { m: 'Tesoureiro',  f: 'Tesoureira' }
-        };
-      const p = func.profissao.toLowerCase();
-      if (!mapa[p]) return p.charAt(0).toUpperCase() + p.slice(1);
-      return func.sexo === 'feminino' ? mapa[p].f : mapa[p].m;
-  };
   const getNomeImagem = (idOriginal) => {
     const mapa = {
         'gerente': 'administrador',
         'prefeito': 'lorde',
         'bancario': 'tesoureiro',
-        'medico': 'curandeiro',
+        'medico': 'enfermeiro',
         'cientista': 'academico'
     };
     // Se estiver no mapa, retorna o novo nome. Se não, usa o ID original (ex: minerador)
@@ -259,16 +239,16 @@ const resultadoFusao = ref(null);
       return ordenarLista(elite);
   });
 
-  // --- LISTA DE AVENTUREIROS (NOVA) ---
-  const listaAventureiros = computed(() => {
-      const avents = jogo.funcionarios.filter(f => f.profissao === 'aventureiro');
+  // --- LISTA DE HERÓIS (NOVA) ---
+  const listaHerois = computed(() => {
+      const avents = jogo.funcionarios.filter(f => f.profissao === 'heroi');
       return ordenarLista(avents);
   });
 
-  // --- LISTA DE COMUNS (ALTERADA: Remove aventureiros daqui) ---
+  // --- LISTA DE COMUNS (ALTERADA: Remove heróis daqui) ---
   const listaComuns = computed(() => {
-      // Pega quem NÃO é especial E TAMBÉM NÃO é aventureiro
-      const comuns = jogo.funcionarios.filter(f => !f.isEspecial && f.profissao !== 'aventureiro');
+      // Pega quem NÃO é especial E TAMBÉM NÃO é herói
+      const comuns = jogo.funcionarios.filter(f => !f.isEspecial && f.profissao !== 'heroi');
       return ordenarLista(comuns);
   });
 
@@ -277,7 +257,7 @@ const resultadoFusao = ref(null);
       
       // Lista atualizada de proibidos (inclui todos os especiais)
       const proibidos = [
-          'ferreiro', 'administrador', 'lorde', 'tesoureiro', 'curandeiro'
+          'ferreiro', 'administrador', 'lorde', 'tesoureiro', 'enfermeiro'
       ];
       
       const lista = jogo.funcionarios.filter(f => {
@@ -294,8 +274,8 @@ const resultadoFusao = ref(null);
           // 3. Filtro de Raça
           if (filtroRaca.value !== '' && f.raca !== filtroRaca.value) return false;
 
-          // 4. Filtro de Classe (Só funciona se for Aventureiro e tiver classe selecionada)
-          if (filtroProfissao.value === 'aventureiro' && filtroClasse.value !== '' && f.classe !== filtroClasse.value) return false;
+          // 4. Filtro de Classe (Só funciona se for Herói e tiver classe selecionada)
+          if (filtroProfissao.value === 'heroi' && filtroClasse.value !== '' && f.classe !== filtroClasse.value) return false;
 
           return true;
       });
@@ -369,9 +349,9 @@ const fecharResultadoFusao = () => {
       // --- COMUNS (Nível 1) ---
       { id: 'minerador', nome: 'Minerador', req: 1, desc: 'Trabalha na Mina extraindo recursos.', stat: 'Bônus de Produção (Minérios).' },
       { id: 'lenhador', nome: 'Lenhador', req: 1, desc: 'Trabalha na Floresta cortando madeira.', stat: 'Bônus de Produção (Madeira).' },
-      { id: 'cacador', nome: 'Caçador', req: 1, desc: 'Obtém comida e couro na Floresta.', stat: 'Bônus de Produção (Comida/Couro).' },
+      { id: 'esfolador', nome: 'Esfolador', req: 1, desc: 'Responsavel pela Camara de Processamento.', stat: 'Bônus de Produção (Comida/Couro).' },
       { id: 'cientista', nome: 'Acadêmico', req: 1, desc: 'Gera pontos de estudo na Academia.', stat: 'Bônus de Produção (Estudo).' },
-      { id: 'aventureiro', nome: 'Aventureiro', req: 1, desc: 'Lidera exércitos (Futuro). Possui atributos de combate.', stat: 'Atributos de Batalha (Ataque/Defesa).' },
+      { id: 'heroi', nome: 'Herói', req: 1, desc: 'Lidera exércitos (Futuro). Possui atributos de combate.', stat: 'Atributos de Batalha (Ataque/Defesa).' },
       { id: 'batedor', nome: 'Batedor', req: 1, desc: 'Explorador ágil.', stat: 'Percepção: Aumenta chance de encontrar itens raros em explorações.' },
       { id: 'saqueador', nome: 'Saqueador', req: 1, desc: 'Especialista em pilhagem.', stat: 'Pilhagem: Aumenta a quantidade de recursos roubados.' },
       
@@ -380,14 +360,14 @@ const fecharResultadoFusao = () => {
       { id: 'bancario', nome: 'Tesoureiro', req: 2, desc: 'Gera juros sobre o seu ouro total.', stat: 'Finanças: % de ouro gerado por hora.' },
       { id: 'ferreiro', nome: 'Ferreiro', req: 3, desc: 'Reduz o tempo de fabricação de itens.', stat: 'Produtividade: % de redução no tempo de craft.' },
       { id: 'prefeito', nome: 'Lorde', req: 4, desc: 'Reduz custos de construções e buffa a própria raça.', stat: 'Gestão: % de desconto em construções + Buff Racial.' },
-      { id: 'medico', nome: 'Curandeiro', req: 5, desc: 'Cura feridos mais rápido.', stat: 'Medicina: % de velocidade na recuperação.' },
+      { id: 'medico', nome: 'Enfermeiro', req: 5, desc: 'Cura feridos mais rápido.', stat: 'Medicina: % de velocidade na recuperação.' },
       { id: 'gerente', nome: 'Administrador', req: 6, desc: 'Influencia a Guilda dos Trabalhadores para atrair melhores candidatos.', stat: 'Influência: Aumenta a sorte no recrutamento e fusão.' }    
   ];
   // --- CONTROLE DO CATÁLOGO ---
   const abaCatalogo = ref('profissoes'); // Começa mostrando profissões
 
-  // Lista com as descrições das Classes de Aventureiro
-  const catalogoAventureiros = [
+  // Lista com as descrições das Classes de Herois
+  const catalogoHerois = [
       { id: 'cavaleiro', nome: 'Cavaleiro', req: 1, desc: 'Guerreiro de armadura pesada.', stat: 'Foco em Defesa e Vida.' },
       { id: 'berserker', nome: 'Berserker', req: 1, desc: 'Lutador furioso.', stat: 'Muito Dano, pouca Defesa.' },
       { id: 'ladino', nome: 'Ladino', req: 1, desc: 'Mestre da furtividade.', stat: 'Alta chance de Crítico.' },
@@ -401,7 +381,7 @@ const fecharResultadoFusao = () => {
 
   // Computada que decide qual lista mostrar na tela
   const listaCatalogoAtual = computed(() => {
-      return abaCatalogo.value === 'profissoes' ? catalogoProfissoes : catalogoAventureiros;
+      return abaCatalogo.value === 'profissoes' ? catalogoProfissoes : catalogoHerois;
   });
 
   // Função para abrir o modal
@@ -413,15 +393,13 @@ const fecharResultadoFusao = () => {
   const labelsEspeciais = {
       administrador: 'Influência', // Alterado de 'gerente'
       batedor: 'Percepção',
-      curandeiro: 'Medicina',      // Alterado de 'medico'
+      enfermeiro: 'Medicina',      // Alterado de 'medico'
       ferreiro: 'Produtividade',
       lorde: 'Gestão',             // Alterado de 'prefeito'
       tesoureiro: 'Finanças',      // Alterado de 'bancario'
       saqueador: 'Pilhagem'
   };
 
-  const corTier = (t) => ({'F':'#8A8A8A','E':'#659665','D':'#71c404','C':'#475fad','B':'#0233d1','A':'#8e44ad','S':'#f1c40f','SS':'#0fbdd1'}[t] || '#000');
-  
   const getCorSelecao = (tierAtual) => {
       const idx = ORDEM_TIERS.indexOf(tierAtual);
       if (idx !== -1 && idx < ORDEM_TIERS.length - 1) {
@@ -443,8 +421,16 @@ const fecharResultadoFusao = () => {
         </div>
     </div>
     <div class="abas-taverna">
-        <button :class="{ ativo: abaAtual === 'contratar' }" @click="abaAtual = 'contratar'">Recrutamento</button>
-        <button :class="{ ativo: abaAtual === 'fusao' }" @click="abaAtual = 'fusao'">Fusão</button>
+    <button :class="{ ativo: abaAtual === 'contratar' }" @click="abaAtual = 'contratar'">Recrutamento</button>
+    
+    <button 
+        :class="{ ativo: abaAtual === 'fusao' }" 
+        @click="jogo.taverna >= 2 ? abaAtual = 'fusao' : null"
+        :disabled="jogo.taverna < 2"
+        :style="{ opacity: jogo.taverna < 2 ? 0.6 : 1, cursor: jogo.taverna < 2 ? 'not-allowed' : 'pointer' }"
+        :title="jogo.taverna < 2 ? 'Desbloqueia no Nível 2' : ''">
+        Fusão <span v-if="jogo.taverna < 2">🔒</span>
+    </button>
     </div>
 
     <div v-if="abaAtual === 'contratar'">
@@ -499,9 +485,9 @@ const fecharResultadoFusao = () => {
                     Profissões
                 </button>
                 <button 
-                    :class="{ ativo: abaCatalogo === 'aventureiros' }" 
-                    @click="abaCatalogo = 'aventureiros'">
-                    Aventureiros
+                    :class="{ ativo: abaCatalogo === 'herois' }" 
+                    @click="abaCatalogo = 'herois'">
+                    Heróis
                 </button>
             </div>
 
@@ -588,15 +574,15 @@ const fecharResultadoFusao = () => {
                 </div>
             </div>
         </div>
-        <div v-if="listaAventureiros.length > 0">
-            <h4 class="titulo-secao aventureiro" 
-    @click="alternarSecao('aventureiros')">
-    <span>⚔️ Aventureiros ({{ listaAventureiros.length }})</span>
-    <span>{{ secoesAbertas.aventureiros ? '▼' : '◀' }}</span>
+        <div v-if="listaHerois.length > 0">
+            <h4 class="titulo-secao herois" 
+    @click="alternarSecao('herois')">
+    <span>⚔️ Heróis ({{ listaHerois.length }})</span>
+    <span>{{ secoesAbertas.herois ? '▼' : '◀' }}</span>
 </h4>
 
-            <div v-show="secoesAbertas.aventureiros" class="lista-funcionarios">
-                <div v-for="func in listaAventureiros" :key="func.id" 
+            <div v-show="secoesAbertas.herois" class="lista-funcionarios">
+                <div v-for="func in listaHerois" :key="func.id" 
                      class="card-funcionario"
                      :style="{ borderColor: corTier(func.tier) }">
                     
@@ -827,7 +813,7 @@ const fecharResultadoFusao = () => {
                     </div>
 
                     <div class="atributo-resultado-destaque">
-                        <template v-if="resultadoFusao.funcionario.profissao === 'aventureiro'">
+                        <template v-if="resultadoFusao.funcionario.profissao === 'heroi'">
                             <span class="label-res">Classe:</span>
                             <strong class="valor-res">{{ resultadoFusao.funcionario.classe || 'Desconhecida' }}</strong>
                         </template>
@@ -886,7 +872,7 @@ const fecharResultadoFusao = () => {
                 </select>
             </div>
 
-            <div v-if="filtroProfissao === 'aventureiro'" class="grupo-filtro animacao-entrada">
+            <div v-if="filtroProfissao === 'heroi'" class="grupo-filtro animacao-entrada">
                 <label>Classe:</label>
                 <select v-model="filtroClasse">
                     <option value="">Todas</option>
@@ -946,7 +932,7 @@ const fecharResultadoFusao = () => {
                             </span>
                         </div>
 
-                        <div v-else-if="func.profissao === 'aventureiro'" class="info-linha" style="margin-bottom: 15px;">
+                        <div v-else-if="func.profissao === 'heroi'" class="info-linha" style="margin-bottom: 15px;">
                              <strong>Classe:</strong> {{ func.classe || 'Desconhecida' }}
                         </div>
 
@@ -1086,7 +1072,7 @@ const fecharResultadoFusao = () => {
                     </span>
                 </div>
 
-                <div v-else-if="novoFuncionarioModal.profissao === 'aventureiro'" class="info-linha" style="justify-content:center; margin-bottom: 15px;">
+                <div v-else-if="novoFuncionarioModal.profissao === 'heroi'" class="info-linha" style="justify-content:center; margin-bottom: 15px;">
                     <strong>Classe:</strong>&nbsp;{{ novoFuncionarioModal.classe || 'Desconhecida' }}
                 </div>
 
@@ -1145,7 +1131,7 @@ const fecharResultadoFusao = () => {
                     </span>
                 </div>
 
-                <div v-else-if="funcionarioParaDemitir.profissao === 'aventureiro'" class="info-linha">
+                <div v-else-if="funcionarioParaDemitir.profissao === 'heroi'" class="info-linha">
                     <strong>Classe:</strong> {{ funcionarioParaDemitir.classe || 'Desconhecida' }}
                 </div>
 
@@ -1240,7 +1226,7 @@ const fecharResultadoFusao = () => {
                                 <div>
                                     <strong>{{ labelsEspeciais[conflitoGerente.novo.profissao] }}: </strong> 
                                     
-                                    <span v-if="conflitoGerente.novo.profissao === 'prefeito'">
+                                    <span v-if="conflitoGerente.novo.profissao === 'lorde'">
                                         {{ conflitoGerente.novo.poderEspecial || conflitoGerente.novo.poderGerencia }}
                                     </span>
 
