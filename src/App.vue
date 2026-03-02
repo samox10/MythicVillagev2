@@ -5,6 +5,7 @@ import { useMiningStore } from './stores/miningStore' // STORE MINERAÇÃO
 import { useHospitalStore } from './stores/hospitalStore' // HOSPITAL STORE
 import { useButcheryStore } from './stores/butcheryStore' // BUTCHERY STORE ( DESTRINCHAMENTO )
 import { useAlchemyStore } from './stores/alchemyStore' // ALQUIMIA STORE
+import { useForgeStore } from './stores/forgeStore' // FORJA STORE
 import HeaderHUD from './components/HeaderHUD.vue'
 import VilaView from './components/VilaView.vue'
 import RecrutamentoView from './components/RecrutamentoView.vue' 
@@ -12,12 +13,14 @@ import HospitalView from './components/HospitalView.vue' // HOSPITAL VIEW
 import MineracaoView from './components/MineracaoView.vue' // MINERAÇAO VIEW
 import DestrinchamentoView from './components/DestrinchamentoView.vue' // DESTRINCHAMENTO VIEW
 import LaboratorioView from './components/LaboratorioView.vue' // LABORATÓRIO VIEW
+import ForjaView from './components/ForjaView.vue' // FORJA VIEW
 
 const store = useGameStore()
 const miningStore = useMiningStore() // <--- INSTÂNCIA MINERAÇÃO
 const hospitalStore = useHospitalStore() // <--- INSTÂNCIA HOSPITAL
 const butcheryStore = useButcheryStore() // <--- INSTÂNCIA DESTRINCHAMENTO
 const alchemyStore = useAlchemyStore() // <--- INSTÂNCIA ALQUIMIA
+const forgeStore = useForgeStore() // <--- INSTÂNCIA FORJA
 window.game = store
 const currentScreen = ref('vila')
 
@@ -27,6 +30,7 @@ onMounted(() => {
   hospitalStore.loadHospital() // <--- CARREGA DADOS DO HOSPITAL
   butcheryStore.loadButchery() // <--- CARREGA OS DADOS DA MESA DE DESTRINCHAMENTO
   alchemyStore.loadAlchemy() // <--- CARREGA OS DADOS DO LABORATÓRIO
+  forgeStore.loadForge() // <--- CARREGA OS DADOS DA FORJA
   // Salários a cada 1 min
   setInterval(() => { store.paySalaries() }, 60000)
   
@@ -37,6 +41,7 @@ onMounted(() => {
     hospitalStore.hospitalTick()   // <--- O "MOTOR" DO HOSPITAL
     butcheryStore.butcheryTick()  // <--- O "MOTOR" DO DESTRINCHAMENTO
     alchemyStore.alchemyTick()    // <--- O "MOTOR" DO LABORATÓRIO
+    forgeStore.forgeTick()        // <--- O "MOTOR" DA FORJA
   }, 1000)
 })
 
@@ -47,6 +52,7 @@ const menuItems = [
   { id: 'hospital', label: 'HOSPITAL', icon: '🏥' },
   { id: 'lab', label: 'LAB', icon: '⚗️' },
   { id: 'destrinchador', label: 'CORTES', icon: '🔪' },
+  { id: 'forja', label: 'FORJA', icon: '⚒️' },
   { id: 'arena', label: 'PVP', icon: '🏆' },
 
 ]
@@ -83,8 +89,9 @@ const menuItems = [
           <HospitalView v-if="currentScreen === 'hospital'" />
           <DestrinchamentoView v-if="currentScreen === 'destrinchador'" />
           <LaboratorioView v-if="currentScreen === 'lab'" />
+          <ForjaView v-if="currentScreen === 'forja'" /> 
           
-          <div v-if="!['vila', 'recrutamento', 'mineracao', 'hospital', 'destrinchador', 'lab'].includes(currentScreen)" class="locked-sector">
+            <div v-if="!['vila', 'recrutamento', 'mineracao', 'hospital', 'destrinchador', 'lab', 'forja'].includes(currentScreen)" class="locked-sector">
             <h2>{{ currentScreen }}</h2><p>SECTOR LOCKED</p>
           </div>
         </div>

@@ -52,8 +52,9 @@ const getDisplayCost = (medKey, tier, amount) => {
   }
   
   // Preenche os slots restantes até dar exatamente 3
-  while (costs.length < 3) {
+  while (costs.length < 4) {
      costs.push({ req: ' ', name: ' ', key: 'empty_' + costs.length, isEmpty: true })
+     
   }
   
   return costs
@@ -180,8 +181,8 @@ const confirmSpeedUp = () => {
                   </div>
 
                   <div class="pa-controls">
-                     <button class="btn-ctrl danger" @click="showAbortModal = true">ABORTAR LOTE</button>
-                     <button class="btn-ctrl purple" @click="showSpeedModal = true">ACELERAR</button>
+                     <button class="btn-ctrl" @click="showAbortModal = true">ABORTAR LOTE</button>
+                     <button class="btn-ctrl" @click="showSpeedModal = true">ACELERAR</button>
                   </div>
                </div>
             </template>
@@ -273,7 +274,7 @@ const confirmSpeedUp = () => {
 
 /* Painéis Base */
 .f-panel { background: #0f172a; border: 1px solid #1e293b; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; }
-.f-header { background: #162032; padding: 10px; font-size: 10px; font-weight: 800; color: #64748b; border-bottom: 1px solid #1e293b; letter-spacing: 0.5px; }
+.f-header { background: #162032; padding: 10px; font-size: 10px; font-weight: 800; color: #38bdf8; border-bottom: 1px solid #1e293b; letter-spacing: 0.5px; }
 .f-body { padding: 15px; flex: 1; display: flex; flex-direction: column; gap: 15px; }
 .p-0 { padding: 0; gap: 0; }
 .text-center { text-align: center; }
@@ -286,15 +287,15 @@ const confirmSpeedUp = () => {
    COLUNA 1: FORMULÁRIOS
 ========================================== */
 .f-group { display: flex; flex-direction: column; gap: 6px; }
-.f-group label { font-size: 9px; color: #94a3b8; font-weight: 700; }
+.f-group label { font-size: 9px; color: #64748b; font-weight: 700; }
 
-.f-input { background: #020617; border: 1px solid #334155; color: #f8fafc; padding: 8px; border-radius: 2px; font-family: 'Chakra Petch', sans-serif; font-size: 11px; outline: none; transition: border-color 0.2s; }
+.f-input { background: #020617; border: 1px solid #334155; color: #38bdf8; padding: 8px; border-radius: 2px; font-family: 'Chakra Petch', sans-serif; font-size: 11px; outline: none; transition: border-color 0.2s; }
 .f-input:focus { border-color: var(--theme); }
 .f-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .tier-grid { display: flex; gap: 4px; }
-.t-btn { flex: 1; background: #020617; border: 1px solid #334155; color: #64748b; padding: 6px 0; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 2px; transition: 0.2s; }
-.t-btn.active { background: #1e293b; color: #f8fafc; border-color: #64748b; }
+.t-btn { flex: 1; background: #020617; border: 1px solid #334155; color: #f8fafc; padding: 6px 0; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 2px; transition: 0.2s; }
+.t-btn.active { background: #1e293b; color: #38bdf8; border-color: #38bdf8;}
 .t-btn.locked { opacity: 0.2; cursor: not-allowed; }
 
 .amount-row { display: flex; gap: 4px; }
@@ -318,9 +319,35 @@ const confirmSpeedUp = () => {
 
 /* Botão Iniciar Gigante e Temático */
 .process-idle { display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; }
-.btn-massive { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #1e293b; background: transparent; color: #475569; font-family: 'Chakra Petch', sans-serif; font-size: 14px; font-weight: 900; letter-spacing: 1px; cursor: pointer; transition: 0.3s; line-height: 1.4; }
-.btn-massive.theme-bg:not(:disabled) { border-color: var(--theme); color: var(--theme); box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-.btn-massive.theme-bg:hover:not(:disabled) { background: var(--theme); color: #020617; box-shadow: 0 0 30px var(--theme); transform: scale(1.05); }
+.btn-massive { 
+  width: 80%; /* Não é mais redondo, é um retângulo largo */
+  height: 60px; /* Altura fixa menor */
+  border-radius: 4px; 
+  border: 1px solid #1e293b; 
+  background: #020617; 
+  color: #475569; 
+  font-family: 'Chakra Petch', sans-serif; 
+  font-size: 14px; 
+  font-weight: 900; 
+  letter-spacing: 2px; 
+  cursor: pointer; 
+  transition: 0.3s; 
+}
+
+.btn-massive.theme-bg:not(:disabled) { 
+  border-color: var(--theme); 
+  color: var(--theme); 
+  background: rgba(2, 6, 23, 0.8);
+  /* Colocamos uma borda brilhante em cima para dar um efeito neon tecnológico */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 2px 0 var(--theme); 
+}
+
+.btn-massive.theme-bg:hover:not(:disabled) { 
+  background: var(--theme); 
+  color: #020617; 
+  box-shadow: 0 0 20px var(--theme); 
+  transform: translateY(-2px); 
+}
 
 /* Tanque Operacional */
 .process-active { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
@@ -337,16 +364,36 @@ const confirmSpeedUp = () => {
 .lote-val { font-size: 14px; color: #f8fafc; font-weight: 900; font-family: monospace; }
 
 .pa-controls { display: flex; gap: 10px; width: 100%; margin-top: auto; }
-.btn-ctrl { flex: 1; padding: 10px; font-family: 'Chakra Petch', sans-serif; font-size: 10px; font-weight: 800; border-radius: 2px; cursor: pointer; border: 1px solid; transition: 0.2s; background: #0f172a; }
-.btn-ctrl.danger { border-color: #ef4444; color: #ef4444; }
-.btn-ctrl.danger:hover { background: #ef4444; color: #fff; }
-.btn-ctrl.purple { border-color: #c084fc; color: #c084fc; }
-.btn-ctrl.purple:hover { background: #c084fc; color: #fff; }
+.btn-ctrl { 
+  flex: 1; 
+  padding: 6px; /* Diminuímos o preenchimento para deixá-lo mais fino */
+  font-family: 'Chakra Petch', sans-serif; 
+  font-size: 9px; /* Fonte menor */
+  font-weight: 700; 
+  border-radius: 2px; 
+  cursor: pointer; 
+  border: 1px solid #334155; /* Borda cinza escura */
+  background: #020617; /* Fundo bem escuro */
+  color: #64748b; /* Texto cinza */
+  transition: 0.2s; 
+}
+
+.btn-ctrl:hover { 
+  background: #1e293b; 
+  color: #e2e8f0; /* Fica clarinho ao passar o mouse */
+  border-color: #475569; 
+}
 
 /* =========================================
    COLUNA 3: SAÍDA
 ========================================== */
-.tray-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+.tray-list { 
+  flex: 1; 
+  overflow-y: scroll; /* O 'scroll' reserva o espaço da barra permanentemente */
+  display: flex; 
+  flex-direction: column; 
+  max-height: 313px; /* Trava a altura para a caixa nunca crescer e empurrar o resto */
+}
 .tl-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-bottom: 1px solid #1e293b; border-left: 3px solid transparent; background: #0f172a; transition: background 0.2s; }
 .tl-item:hover { background: #162032; }
 .tl-info { display: flex; flex-direction: column; gap: 2px; }

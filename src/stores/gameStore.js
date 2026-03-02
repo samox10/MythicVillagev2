@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { TIER_CONFIG, TIER_ORDER } from '../data/balancing'
+import { PROJETOS_FORJA } from '../data/equipments'
 
 export const useGameStore = defineStore('game', () => {
   
@@ -18,9 +19,16 @@ export const useGameStore = defineStore('game', () => {
     // Carcaças para teste (5 de cada)
     javali_da_vila: 5, carcaca_coelhogigante: 5, tatu_pedra: 5, salamandra: 5,
     javali_de_granito: 5, snow_fox: 5, magma_hyena: 5, lagarto_de_brasa: 5,
-    sand_scorpion: 5, besouro_rinoceronte: 5, basilisco: 5, fire_serpe: 5
+    sand_scorpion: 5, besouro_rinoceronte: 5, basilisco: 5, fire_serpe: 5,
+  
+    // Materiais de Aprimoramento pra teste
+    pedra_calib_1: 10, // Para +0 a +4 (Deixei 10 pra você testar)
+    pedra_calib_2: 10, // Para +5 a +7
+    pedra_calib_3: 10, // Para +8 a +9
+    pedra_seguranca: 5 // Pedra de Cash (Evita rebaixamento)
   })
   const workers = ref([]) 
+  const equipments = ref([])
   const buildings = ref([
     { id: 1, key: 'castelo', level: 1 },
     { id: 2, key: 'armazem', level: 1 },
@@ -29,7 +37,8 @@ export const useGameStore = defineStore('game', () => {
     { id: 5, key: 'mina', level: 1 },
     { id: 6, key: 'hospital', level: 0 },
     { id: 7, key: 'destrinchador', level: 0 },
-    { id: 8, key: 'laboratorio', level: 0 }
+    { id: 8, key: 'laboratorio', level: 0 },
+    { id: 9, key: 'forja', level: 0 }
   ])
   const medicalInventory = ref({
     plasma: [10, 10, 10, 10], 
@@ -239,6 +248,25 @@ export const useGameStore = defineStore('game', () => {
     workers.value = workers.value.filter(w => w.id !== id)
     return { success: true, msg: "Funcionário demitido." }
   }
+  // Função Global de Reciclagem
+  function recycleItem(item) {
+    if (!item || !item.idProjeto) return false
+
+    // Busca o projeto original para saber a receita
+    const projetoOrig = PROJETOS_FORJA.find(p => p.id === item.idProjeto)
+    
+    if (projetoOrig) {
+      for (const mat of projetoOrig.custo) {
+        // Devolve 20% do recurso arredondado para baixo
+        const devolucao = Math.floor(mat.qtd * 0.2) 
+        if (devolucao > 0) {
+          if (mat.tipo === 'recurso') resources.value[mat.id] += devolucao
+          else inventory.value[mat.id] = (inventory.value[mat.id] || 0) + devolucao
+        }
+      }
+    }
+    return true
+  }
 
   // === SAVE SYSTEM ===
   function loadGame() {
@@ -248,8 +276,12 @@ export const useGameStore = defineStore('game', () => {
       
       // Carrega recursos e inventário normalmente
       resources.value = data.resources
-      inventory.value = data.inventory || { pedra: 0, ferro: 0, cobre: 0, ouro_min: 0, cristal: 0, obsidiana: 0, rubi: 0, safira: 0, esmeralda: 0, mithril: 0, adamantium: 0, oricalco: 0, carne: 0, couro: 0, osso: 0, sangue: 0, presa: 0, escama: 0, javali_da_vila: 5, carcaca_coelhogigante: 5, tatu_pedra: 5, salamandra: 5, javali_de_granito: 5, snow_fox: 5, magma_hyena: 5, lagarto_de_brasa: 5, sand_scorpion: 5, besouro_rinoceronte: 5, basilisco: 5, fire_serpe: 5 }
-      workers.value = data.workers
+      inventory.value = data.inventory || { pedra: 0, ferro: 0, cobre: 0, ouro_min: 0, cristal: 0, obsidiana: 0, rubi: 0, 
+        safira: 0, esmeralda: 0, mithril: 0, adamantium: 0, oricalco: 0, carne: 0, couro: 0, osso: 0, sangue: 0, 
+        presa: 0, escama: 0, javali_da_vila: 5, carcaca_coelhogigante: 5, tatu_pedra: 5, salamandra: 5, 
+        javali_de_granito: 5, snow_fox: 5, magma_hyena: 5, lagarto_de_brasa: 5, sand_scorpion: 5, besouro_rinoceronte: 5, basilisco: 5, fire_serpe: 5, pedra_calib_1: 10, pedra_calib_2: 10, pedra_calib_3: 10, pedra_seguranca: 5 }
+      workers.value = data.workers // Carrega trabalhadores salvos ou inicia vazio
+      equipments.value = data.equipments || [] // Carrega equipamentos salvos ou inicia vazio
       adminId.value = data.adminId
       if (adminId.value) {
         const adminWorker = workers.value.find(w => w.id === adminId.value)
@@ -275,21 +307,22 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  watch([resources, workers, buildings, adminId, dailyHires, inventory], () => {
+  watch([resources, workers, buildings, adminId, dailyHires, inventory, equipments], () => {
     localStorage.setItem('mythic_save_v2', JSON.stringify({
       resources: resources.value,
       workers: workers.value,
       buildings: buildings.value,
       adminId: adminId.value,
       inventory: inventory.value,
-      dailyHires: dailyHires.value
+      dailyHires: dailyHires.value,
+      equipments: equipments.value
     }))
   }, { deep: true })
 
   return {
-    resources, inventory, medicalInventory, workers, buildings, adminId, dailyHires, miningLevel,
+    resources, inventory, medicalInventory, workers, buildings, adminId, dailyHires, miningLevel, equipments,
     currentAdmin, recruitmentLevel, maxPopulation, maxStorage, maxCarcassStorage,
     hireWorker, fireWorker, setAdmin, paySalaries, manualPay,
-    spendResources, upgradeBuilding, loadGame, getWorkerStats
+    spendResources, upgradeBuilding, loadGame, getWorkerStats, recycleItem
   }
 })

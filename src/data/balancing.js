@@ -166,3 +166,32 @@ export const MULTIPLICADOR_ALQUIMIA = {
   3: { cost: 5, time: 2.5 },
   4: { cost: 10, time: 4 }
 }
+
+// === 11. SISTEMA DE BALANCEAMENTO DA FORJA / CALIBRAÇÃO ===
+// Define o quanto cada atributo escala a cada nível de aprimoramento
+export const STAT_SCALING = {
+  'Ataque Físico': { step: 1, every: 1 }, 
+  'Ataque Mágico': { step: 1, every: 1 },
+  'Defesa Física': { step: 1, every: 1 },
+  'Defesa Mágica': { step: 1, every: 1 },
+  'Chance Crítico': { step: 1, every: 5 }, 
+  'Dano Crítico': { step: 2, every: 2 }, 
+  'Velocidade de Ataque': { step: 1, every: 3 }, 
+  'Vida': { step: 10, every: 1 }, 
+  'default': { step: 1, every: 2 } 
+}
+// Define as chances, custos e se pode rebaixar para cada nível de calibração
+export const CALIBRATION_TIERS = [
+  { level: 0, stoneId: 'pedra_calib_1', chance: 100, gold: 100, canDowngrade: false },
+  { level: 1, stoneId: 'pedra_calib_1', chance: 100, gold: 200, canDowngrade: false },
+  { level: 2, stoneId: 'pedra_calib_1', chance: 100, gold: 300, canDowngrade: false },
+  { level: 3, stoneId: 'pedra_calib_1', chance: 90, gold: 400, canDowngrade: false },
+  { level: 4, stoneId: 'pedra_calib_1', chance: 80, gold: 500, canDowngrade: false }, // Chega no +5
+  
+  { level: 5, stoneId: 'pedra_calib_2', chance: 70, gold: 1000, canDowngrade: false },
+  { level: 6, stoneId: 'pedra_calib_2', chance: 60, gold: 1500, canDowngrade: false },
+  { level: 7, stoneId: 'pedra_calib_2', chance: 50, gold: 2000, canDowngrade: false }, // Chega no +8
+  
+  { level: 8, stoneId: 'pedra_calib_3', chance: 35, gold: 100000, canDowngrade: true }, 
+  { level: 9, stoneId: 'pedra_calib_3', chance: 20, gold: 10000, canDowngrade: true } // Chega no +10
+]
